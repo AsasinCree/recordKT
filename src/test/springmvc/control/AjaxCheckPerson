@@ -1,0 +1,17 @@
+package test.spring.mvc.control;
+
+import java.io.PrintWriter;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import test.spring.mvc.model.Person;
+
+@Controller
+public class CheckName {
+	@RequestMapping("/check")
+	public void check(Person p, PrintWriter pWriter){
+		System.out.println(p.getName()+" "+p.getPass());
+		pWriter.write("welcome");
+	}
+}
