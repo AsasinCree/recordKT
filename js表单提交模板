@@ -1,0 +1,29 @@
+	//针对table
+	$('table').on('click', '.classname', function() {   //classname为某个单元格的class属性值
+		action = "";
+		form = $("<form></form>");
+		form.attr('action', action);
+		form.attr('method', 'post');
+		input1 = $("<input type='hidden' name='id'/>");
+		input1.attr('value', $(this).attr('name'));   //取得当前单元格的name属性值
+		form.append(input1);
+		input2 = $("<input type='hidden' name='modeFlag'/>");
+		input2.attr('value', '0');    //自定义值
+		form.append(input2);
+		form.appendTo("body");
+		form.css('display', 'none');
+		form.submit();
+		return false;
+	});
+	
+	//其他控件直接用id属性获取
+	$('#back_btn').click(function() {
+		action = "";
+		form = $("<form></form>");
+		form.attr('action', action);
+		form.attr('method', 'post');
+		form.appendTo("body");
+		form.css('display', 'none');
+		form.submit();
+		return false;
+	});
