@@ -1,0 +1,41 @@
+<script type="text/javascript">
+function ajaxCheck(){
+	var name = $("#name").val();
+	if(name != null){
+	 	$.ajax({
+			type:"post",
+			url:"${pageContext.request.contextPath}/check",
+			data:{	//数据，这里使用的是Json格式进行传输  
+				name: name,
+				pass: "pass"
+			},
+			success:function(data){
+				if(data == "welcome"){
+					alert(data+": "+name);
+				}
+			}
+		}); 
+ 	 	$.post(		//简化版本 method=post   async=true    无错误处理
+	 		"${pageContext.request.contextPath}/check",
+	 		{
+	 			name: $("#name").val()
+	 		},
+	 		function(data){
+            	alert(data);
+	 		}
+    );  
+	}
+}
+</script>
+
+
+springmvc模式的controller写法如下：
+
+@Controller
+public class ajaxCheck {
+	@RequestMapping("/check")
+	public void check(Person p, PrintWriter pWriter){   //p为自动装配的bean
+		System.out.println(p.getName()+" "+p.getPass());
+		pWriter.write("welcome");
+	}
+}
