@@ -1,0 +1,14 @@
+  <!-- data-rel是封装框架的一个组件 -->
+  <select data-rel="chosen" class="form-control" id="selectId" name="preItem" style="width: 250px;">
+		<option value="0">请选择</option>   <!-- 第一项 -->
+		<c:forEach items="${selectList}" var="item">
+		  <!-- 刷新之后保存之前的选中值 -->
+			<option value="${item }" <c:if test="${item eq preItem}">selected="selected"</c:if> >${item }</option>
+		</c:forEach>
+	</select>
+	
+	//下拉列表框的充值
+	$("#reset").click(function(){
+		$("#selectId option:first").prop("selected", 'selected'); 
+		$("#selectId_chosen").find("span").html("请选择");
+	}); 
