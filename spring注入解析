@@ -1,0 +1,16 @@
+@Component 是定义一个bean，和@Repository、@Service、@Controller可以互换，只不过这三个可以区分具体的功能属性。3 个注释分别和持久层(dao)、业务层和控制层（Web 层）相对应
+
+@Service 自动根据bean的类名实例化一个首写字母为小写的bean，例如Chinese实例化为chinese，如果需要自己改名字则:@Service("你自己改的bean名")。
+
+@Resource 的作用相当于 @Autowired，@Autowired 按 byType 注入, 而@Resource 按 byName 注入。@Resource 有两个属性，分别是 name 和 type，Spring 将 @Resource 注释的 name 属性解析为 Bean 的名字，而 type 属性则解析为 Bean 的类型。所以如果使用 name 属性，则使用 byName 的自动注入策略，而使用 type 属性时则使用 byType 自动注入策略。如果既不指定 name 也不指定 type 属性，这时将通过反射机制使用 byName 自动注入策略。
+
+
+注入方式：
+service接口注入：@Resource service的接口类名
+属性注入：@Autowired 无需getter()和setter()方法
+
+
+
+当接口存在两个实现类的时候必须使用@Qualifier指定注入哪个实现类，否则可以省略，只写@Autowired@Autowired  
+@Qualifier("chinese")
+private Man man;  
