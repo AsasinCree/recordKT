@@ -1,0 +1,74 @@
+http://blog.csdn.net/kennyrose/article/details/7532032
+http://blog.csdn.net/xluren/article/details/32746183
+http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html
+
+索引是对数据库表中一个或多个列的值进行排序的结构
+
+索引分为聚簇索引和非聚簇索引两种，聚簇索引是按照数据存放的物理位置为顺序的，而非聚簇索引就不一样了；
+聚簇索引能提高多行检索的速度，而非聚簇索引对于单行的检索很快
+
+根据数据库的功能，可以在数据库设计器中创建三种索引：唯一索引、主键索引和聚集索引。
+  唯一索引：不允许其中任何两行具有相同索引值的索引。
+  主键索引：数据库表经常有一列或多列组合，其值唯一标识表中的每一行。
+  聚集索引：表中行的物理顺序与键值的逻辑（索引）顺序相同。一个表只能包含一个聚集索引。
+
+建立太多的索引将会影响更新和插入的速度
+
+应该在这些列上创建索引：
+  主键列
+  外键列
+  排序列
+  where条件查询列
+  
+最普通的情况，是为出现在where子句的字段建一个索引。为方便讲述，先建立一个如下的表。
+CREATE TABLE mytable(
+idserial int primary key,
+category_id int not null default 0,
+user_id int not null default 0,
+adddate int not null default 0
+);
+如果在查询时常用类似以下的语句：
+SELECT * FROM mytable WHERE category_id=1;
+最直接的应对之道，是为category_id建立一个简单的索引：
+CREATE INDEX mytable_categoryid ON mytable (category_id);
+OK.如果有不止一个选择条件呢？例如：
+SELECT * FROM mytable WHERE category_id=1 AND user_id=2;
+第一反应可能是，再给user_id建立一个索引。不好，这不是一个最佳的方法。可以建立多重的索引。
+CREATE INDEX mytable_categoryid_userid ON mytable(category_id,user_id);
+注意到在命名时的习惯了吗？使用"表名_字段1名_字段2名"的方式。很快就会知道为什么这样做了。
+现在已经为适当的字段建立了索引，不过，还是有点不放心吧，可能会问，数据库会真正用到这些索引吗？测试一下就OK，对于大多数的数据库来说，这是很容易的，只要使用EXPLAIN命令：
+EXPLAIN
+SELECT * FROM mytable
+WHERE category_id=1 AND user_id=2;
+This is what Postgres 7.1 returns (exactlyasI expected)
+NOTICE:QUERY PLAN:
+Index Scan using mytable_categoryid_userid on
+mytable(cost=0.00..2.02 rows=1 width=16)
+EXPLAIN
+以上是postgres的数据，可以看到该数据库在查询的时候使用了一个索引（一个好开始），而且它使用的是创建的第二个索引。看到上面命名的好处了吧，马上知道它使用适当的索引了。
+接着，来个稍微复杂一点的，如果有个ORDERBY 子句呢？不管你信不信，大多数的数据库在使用orderby的时候，都将会从索引中受益。
+SELECT * FROM mytable
+WHERE category_id=1 AND user_id=2
+ORDER BY adddate DESC;
+很简单，就像为where子句中的字段建立一个索引一样，也为ORDER BY的子句中的字段建立一个索引：
+CREATE INDEX mytable_categoryid_userid_adddate ON mytable (category_id,user_id,adddate);
+注意:"mytable_categoryid_userid_adddate"将会被截短为"mytable_categoryid_userid_addda"
+CREATE
+EXPLAIN SELECT * FROM mytable
+WHERE category_id=1 AND user_id=2
+ORDER BY adddate DESC;
+NOTICE:QUERY PLAN:
+Sort(cost=2.03..2.03 rows=1 width=16)
+->Index Scanusing mytable_categoryid_userid_addda
+on mytable(cost=0.00..2.02 rows=1 width=16)
+EXPLAIN
+看看EXPLAIN的输出，数据库多做了一个没有要求的排序，这下知道性能如何受损了吧，看来对于数据库的自身运作是有点过于乐观了，那么，给数据库多一点提示吧。
+为了跳过排序这一步，并不需要其它另外的索引，只要将查询语句稍微改一下。这里用的是postgres，将给该数据库一个额外的提示--在ORDER BY语句中，加入where语句中的字段。这只是一个技术上的处理，并不是必须的，因为实际上在另外两个字段上，并不会有任何的排序操作，不过如果加入，postgres将会知道哪些是它应该做的。
+EXPLAIN SELECT * FROM mytable
+WHERE category_id=1 AND user_id=2
+ORDER BY category_id DESC,user_id DESC,adddate DESC;
+NOTICE:QUERY PLAN:
+Index Scan Backward using
+mytable_categoryid_userid_addda on mytable(cost=0.00..2.02 rows=1 width=16)
+EXPLAIN
+现在使用料想的索引了，而且它还挺聪明，知道可以从索引后面开始读，从而避免了任何的排序。
