@@ -1,1 +1,30 @@
+		// 读取一行数字（空格隔开），存入数组
+    Scanner scanner = new Scanner(System.in);
+		String input = scanner.nextLine();
+		String[] numbers = input.split(" ");
+		for (int j = 0; j < numbers.length; j++)
+			System.out.print(Integer.parseInt(numbers[j]) + " ");
+      
+      
+	/**
+	 * 将一个int型数据(八、十、十六进制)转成(二、八、十六)进制.
+	 * 
+	 * @param shift
+	 *            (1:二进制 3:八进制 4:十六进制)
+	 */
+	private static String toUnsignedString(int n, int shift) {
+		char[] result = new char[32]; // 存放最终数据，末尾开始由低到高存
+		int charPos = 32; // result数组的指针（末尾开始）
+		int radix = 1 << shift; // 将转成radix进制（将1左移shift位）
+		int mask = radix - 1; // 转成radix进制的个位位数（二进制为1，八进制为3，十六进制为4）
 
+		do {
+			result[--charPos] = digits[n & mask]; // 取得n对应radix进制的个位
+			n >>>= shift; // 去掉n的个位（将n无符号右移shift位）
+		} while (n != 0);
+
+		return new String(result, charPos, (32 - charPos));
+	}
+
+	final static char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
+			'9', 'a', 'b', 'c', 'd', 'e', 'f' };
