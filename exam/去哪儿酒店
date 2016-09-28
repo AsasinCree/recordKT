@@ -1,0 +1,48 @@
+package exam;
+
+import java.util.Scanner;
+
+public class Test1 {
+	public static int minCount = 100000;
+	public static int money = 0;
+	public static int[] arr = new int[1000];
+
+	void fun(int startPos, int current,int count) {
+		if(current==money){
+			if(count<minCount){
+				minCount=count;
+			}
+		}else if(current<money){
+			for (int i = startPos; i >=0 ; i--) {
+				count++;
+				current+=arr[i];
+				fun(i, current, count);
+			}
+		}else {
+			count--;
+			current-=arr[startPos];
+		}
+	}
+
+	public static void main(String[] args) {
+
+		int i = 0, len;
+
+		Scanner cin = new Scanner(System.in);
+		String nextLine = cin.nextLine();
+		String num[] = nextLine.split(" ");
+		for (String string : num) {
+			arr[i++] = Integer.parseInt(string);
+		}
+		len = i;
+		money = arr[len - 1];
+
+		Test1 test = new Test1();
+
+		for (i = len-2; i >=0 ; i--) {
+			test.fun(i,arr[i],1);
+		}
+		System.out.println(minCount);
+	}
+
+}
