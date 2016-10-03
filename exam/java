@@ -1,11 +1,4 @@
-		// 读取一行数字（空格隔开），存入数组
-    Scanner scanner = new Scanner(System.in);
-		String input = scanner.nextLine();
-		String[] numbers = input.split(" ");
-		for (int j = 0; j < numbers.length; j++)
-			System.out.print(Integer.parseInt(numbers[j]) + " ");
-      
-      
+     
 	/**
 	 * 将一个int型数据(八、十、十六进制)转成(二、八、十六)进制.
 	 * 
